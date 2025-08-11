@@ -6,10 +6,15 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["vercel", "serverless", "nodemailer", "contact-form"],
+  "keywords": [
+    "vercel",
+    "serverless",
+    "nodemailer",
+    "contact-form"
+  ],
   "author": "Your Name",
   "license": "MIT",
   "dependencies": {
-    "nodemailer": "^7.0.5"
+    "nodemailer": "^6.10.1"
   }
 }

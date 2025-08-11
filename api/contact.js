@@ -1,16 +1,36 @@
 const nodemailer = require("nodemailer");
 
 module.exports = async (req, res) => {
-  if (req.method !== "POST") return res.status(405).json({ message: "Method Not Allowed" });
+  // Set CORS headers to allow your frontend domain
+  res.setHeader('Access-Control-Allow-Origin', 'https://portfolio-frontend1-lyart.vercel.app'); 
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Handle preflight OPTIONS request
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  if (req.method !== "POST") {
+    return res.status(405).json({ message: "Method Not Allowed" });
+  }
 
   const { name, email, message, botField } = req.body;
 
-  if (!name || !name.trim()) return res.status(400).json({ message: "Name required" });
+  if (!name || !name.trim()) {
+    return res.status(400).json({ message: "Name required" });
+  }
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!email || !emailRegex.test(email)) return res.status(400).json({ message: "Valid email required" });
-  if (!message || message.length < 5) return res.status(400).json({ message: "Message too short" });
+  if (!email || !emailRegex.test(email)) {
+    return res.status(400).json({ message: "Valid email required" });
+  }
+  if (!message || message.length < 5) {
+    return res.status(400).json({ message: "Message too short" });
+  }
 
-  if (botField) return res.status(400).json({ message: "Spam detected" });
+  if (botField) {
+    return res.status(400).json({ message: "Spam detected" });
+  }
 
   try {
     const transporter = nodemailer.createTransport({
@@ -33,7 +53,8 @@ module.exports = async (req, res) => {
 
     res.status(200).json({ message: "Message sent" });
   } catch (error) {
-    console.error(error);
+    console.error("Email sending error:", error);
     res.status(500).json({ message: "Failed to send message" });
   }
 };
+
