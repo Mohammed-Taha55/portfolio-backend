@@ -1,13 +1,20 @@
 const nodemailer = require("nodemailer");
 
 module.exports = async (req, res) => {
-  // Set CORS headers to allow your frontend domain
-  res.setHeader('Access-Control-Allow-Origin', 'https://portfolio-frontend1-lyart.vercel.app'); 
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  const allowedOrigins = [
+    "https://portfolio-frontend-livid-mu.vercel.app", // production
+    "http://localhost:5173", // local dev
+  ];
 
-  // Handle preflight OPTIONS request
-  if (req.method === 'OPTIONS') {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
@@ -20,10 +27,12 @@ module.exports = async (req, res) => {
   if (!name || !name.trim()) {
     return res.status(400).json({ message: "Name required" });
   }
+
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!email || !emailRegex.test(email)) {
     return res.status(400).json({ message: "Valid email required" });
   }
+
   if (!message || message.length < 5) {
     return res.status(400).json({ message: "Message too short" });
   }
@@ -44,7 +53,8 @@ module.exports = async (req, res) => {
     });
 
     await transporter.sendMail({
-      from: `"${name}" <${email}>`,
+      from: `"${name}" <${process.env.EMAIL_USER}>`,
+      replyTo: email,
       to: process.env.TO_EMAIL,
       subject: `Portfolio message from ${name}`,
       text: `${message}\n\nFrom: ${name} <${email}>`,
@@ -57,4 +67,3 @@ module.exports = async (req, res) => {
     res.status(500).json({ message: "Failed to send message" });
   }
 };
-
